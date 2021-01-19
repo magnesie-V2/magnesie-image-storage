@@ -1,25 +1,25 @@
 CREATE SCHEMA IF NOT EXISTS `magnesie_image_storage`;
 
-CREATE TABLE `magnesie_image_storage`.`user` (
+CREATE TABLE IF NOT EXISTS `magnesie_image_storage`.`user` (
     `id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100)
 );
 
-CREATE TABLE `magnesie_image_storage`.`site` (
+CREATE TABLE IF NOT EXISTS `magnesie_image_storage`.`site` (
     `id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100),
     `location` POINT,
     `details` VARCHAR(200)
 );
 
-CREATE TABLE `magnesie_image_storage`.`area` (
+CREATE TABLE IF NOT EXISTS `magnesie_image_storage`.`area` (
     `id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100),
     `siteId` INT,
     FOREIGN KEY (`siteId`) REFERENCES `site`(`id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `magnesie_image_storage`.`submission` (
+CREATE TABLE IF NOT EXISTS `magnesie_image_storage`.`submission` (
     `id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `userId` INT,
     `areaId` INT,
@@ -29,7 +29,7 @@ CREATE TABLE `magnesie_image_storage`.`submission` (
     FOREIGN KEY (`areaId`) REFERENCES `area`(`id`) ON DELETE CASCADE
 );
 
-CREATE TABLE `magnesie_image_storage`.`photo` (
+CREATE TABLE IF NOT EXISTS `magnesie_image_storage`.`photo` (
     `id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `fileName` VARCHAR(100),
     `submissionId` INT,
