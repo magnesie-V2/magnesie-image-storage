@@ -1,0 +1,17 @@
+services:
+  webservice:
+    build: webservice
+    ports: 
+      - "80:8000"
+    volumes: 
+      - hostedFiles/:/hostedFiles
+  database:
+    build: database
+    ports: 
+      - 3306:3306
+      - 33060:33060
+    volumes: 
+      - databaseStorage:/var/lib/mysql
+volumes:
+  hostedFiles:
+  databaseStorage:
