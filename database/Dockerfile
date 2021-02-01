@@ -1,5 +1,6 @@
 FROM mysql
 
-ENV MYSQL_RANDOM_ROOT_PASSWORD true
+# ENV MYSQL_RANDOM_ROOT_PASSWORD true
+ENV MYSQL_ROOT_PASSWORD password
 
-COPY init.sql /docker-entrypoint-initdb.d/
+COPY *.sql /docker-entrypoint-initdb.d/
