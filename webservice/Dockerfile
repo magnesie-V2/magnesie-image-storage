@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y curl default-libmysqlclient-dev libpq-d
 RUN curl https://sh.rustup.rs/ -sSf | \
   sh -s -- -y --default-toolchain nightly
 
-RUN /bin/bash -c "source $HOME/.cargo/env"
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 COPY . ./
 
