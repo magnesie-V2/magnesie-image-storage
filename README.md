@@ -40,3 +40,9 @@ Add the following routes:
     ]
     ```
 - POST `/change_submission_status`: changes the status of a submission
+    ```
+    {
+      "id": String,
+      "status": String
+    }
+    ```
