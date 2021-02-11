@@ -16,6 +16,7 @@ pub mod cors;
 pub mod models;
 pub mod routes;
 pub mod schema;
+pub mod beans;
 
 use rocket_contrib::serve::StaticFiles;
 
@@ -24,7 +25,7 @@ pub struct DbConn(diesel::MysqlConnection);
 
 fn main() { 
     rocket::ignite()
-        .mount("/", routes![routes::home, routes::list_users])
+        .mount("/", routes![routes::home, routes::list_users, routes::list_new_submissions])
         .mount("/files", StaticFiles::from("/hostedFiles"))
         .attach(DbConn::fairing())
         .attach(cors::CorsFairing)

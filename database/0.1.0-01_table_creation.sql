@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 CREATE TABLE IF NOT EXISTS `sites` (
     `id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100) NOT NULL,
-    `location` POINT NOT NULL,
+    `location` POINT SRID 4326 NOT NULL,
     `details` VARCHAR(200) NOT NULL
 );
 
