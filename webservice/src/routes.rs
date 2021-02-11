@@ -1,5 +1,6 @@
 use diesel::{self, prelude::*};
 
+use rocket::http::Status;
 use rocket_contrib::json::Json;
 
 use crate::models::*;
@@ -10,16 +11,6 @@ use crate::DbConn;
 #[get("/")]
 pub fn home() -> &'static str {
     "The API is up and running!"
-}
-
-#[get("/users")]
-pub fn list_users(conn: DbConn) -> Result<Json<Vec<User>>, String> {
-    use crate::schema::users::dsl::*;
-
-    users.load(&conn.0).map_err(|err| -> String {
-        println!("Error querying users: {:?}", err);
-        "Error querying users from the database".into()
-    }).map(Json)
 }
 
 /*
@@ -47,7 +38,20 @@ pub fn list_new_submissions(conn: DbConn) -> Json<Vec<beans::SubmissionBean>> {
 
     // Restrutures the data and returns it as JSON
     Json(submissions_bean_data_list.zip(photos_path_list_grouped).into_iter()
-        .map(|((id, submission_date), photos)| {beans::SubmissionBean {id: id.to_string(), photos: photos, submission_date: submission_date}}).collect::<Vec<beans::SubmissionBean>>()
+        .map(|((id, submission_date), photos)| {beans::SubmissionBean {id: id, photos: photos, submission_date: submission_date}}).collect::<Vec<beans::SubmissionBean>>()
     )
     
+}
+
+#[post("/change_submission_status", format = "application/json", data = "<submission>")]
+pub fn update_submission(conn: DbConn, submission: beans::UpdateSubmissionBean) -> Status { 
+    let updated_row_count = diesel::update(submissions::table.filter(submissions::id.eq::<i32>(submission.id)))
+    .set(submissions::status.eq(submission.status))
+    .execute(&conn.0);
+
+    match updated_row_count {
+        Ok(0) => Status::BadRequest,
+        Ok(_) => Status::Ok,
+        Err(_) => Status::InternalServerError
+    }
 }
