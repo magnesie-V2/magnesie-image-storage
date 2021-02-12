@@ -39,19 +39,19 @@ None
 <tr>
     <td>200</td>
     <td>
-        <pre lang="json">
+        <pre>
         [
             {
-                "id": "1", 
-                "photos": ["url1", "url2", ...],
+                "id": 1, 
+                "photos": ["url1", "url2", …],
                 "submission_date": "YYYY-MM-DDThh:mm:ss.sssZ"
             },
             {
-                "id": "2", 
-                "photos": ["url3", "url4", ...],
+                "id": 2, 
+                "photos": ["url3", "url4", …],
                 "submission_date": "YYYY-MM-DDThh:mm:ss.sssZ"
             },
-            ...
+            …
         ]
         </pre>
     </td>
@@ -64,9 +64,9 @@ Changes the status of a given submission
 
 #### Body - JSON
 
-```json
+```
 {
-    "id": 1,
+    "id": 1,
     "status": "TREATED"
 }
 ```
