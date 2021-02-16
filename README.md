@@ -40,20 +40,19 @@ None
     <td>200</td>
     <td>
         <pre>
-        [
-            {
-                "id": 1, 
-                "photos": ["url1", "url2", …],
-                "submission_date": "YYYY-MM-DDThh:mm:ss.sssZ"
-            },
-            {
-                "id": 2, 
-                "photos": ["url3", "url4", …],
-                "submission_date": "YYYY-MM-DDThh:mm:ss.sssZ"
-            },
-            …
-        ]
-        </pre>
+[
+    {
+        "id": 1, 
+        "photos": ["url1", "url2", …],
+        "submission_date": "YYYY-MM-DDThh:mm:ss.sssZ"
+    },
+    {
+        "id": 2, 
+        "photos": ["url3", "url4", …],
+        "submission_date": "YYYY-MM-DDThh:mm:ss.sssZ"
+    },
+    …
+]</pre>
     </td>
 </tr>
 </table>
