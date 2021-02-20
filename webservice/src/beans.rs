@@ -1,4 +1,5 @@
 use chrono::{NaiveDateTime};
+use serde_json::Number;
 use std::io::Read;
 
 use rocket::{Outcome, Outcome::*};
@@ -47,4 +48,24 @@ impl FromDataSimple for UpdateSubmissionBean {
             Err(_) => Failure((Status::UnprocessableEntity, string))
         }
     }
+}
+
+
+#[derive(Deserialize)]
+pub struct SubmitedDataBean {
+    pub user: SubmitedUserBean,
+    pub site: SubmitedSiteBean
+}
+
+#[derive(Deserialize)]
+pub struct SubmitedUserBean {
+    pub name: String
+}
+
+#[derive(Deserialize)]
+pub struct SubmitedSiteBean {
+    pub name: String,
+    pub details: String,
+    pub longitude: Number,
+    pub latitude: Number
 }

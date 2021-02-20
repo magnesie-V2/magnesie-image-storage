@@ -1,13 +1,6 @@
 use chrono::{NaiveDateTime};
-use super::schema::{areas, photos, sites, submissions, users};
+use super::schema::{photos, sites, submissions, users};
 
-#[derive(Serialize, Identifiable, Queryable, Associations)]
-#[belongs_to(Site, foreign_key="site_id")]
-pub struct Area {
-    pub id: i32,
-    pub name: String,
-    pub site_id: i32
-}
 
 #[derive(Serialize, Identifiable, Queryable, Associations)]
 #[belongs_to(Submission, foreign_key="submission_id")]
@@ -28,11 +21,11 @@ pub struct Site {
 
 #[derive(Serialize, Identifiable, Queryable, Associations)]
 #[belongs_to(User, foreign_key="user_id")]
-#[belongs_to(Area, foreign_key="area_id")]
+#[belongs_to(Site, foreign_key="site_id")]
 pub struct Submission {
     pub id: i32,
     pub user_id: i32,
-    pub area_id: i32,
+    pub site_id: i32,
     pub submission_date: NaiveDateTime,
     pub status: String
 }
@@ -40,5 +33,11 @@ pub struct Submission {
 #[derive(Serialize, Identifiable, Queryable)]
 pub struct User {
     pub id: i32,
+    pub name: String
+}
+
+#[derive(Deserialize, Insertable)]
+#[table_name = "users"]
+pub struct InsertableUser {
     pub name: String
 }

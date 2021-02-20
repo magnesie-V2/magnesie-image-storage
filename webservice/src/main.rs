@@ -25,7 +25,7 @@ pub struct DbConn(diesel::MysqlConnection);
 
 fn main() { 
     rocket::ignite()
-        .mount("/", routes![routes::home, routes::list_new_submissions, routes::update_submission])
+        .mount("/", routes![routes::home, routes::list_new_submissions, routes::update_submission, routes::create_user, routes::submit])
         .mount("/files", StaticFiles::from("/hostedFiles"))
         .attach(DbConn::fairing())
         .attach(cors::CorsFairing)
