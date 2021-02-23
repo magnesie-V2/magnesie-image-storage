@@ -137,49 +137,35 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         user_id = user_id_field.text.parse::<i32>().unwrap();
     }
 
-    println!("{:?}", user_id);
-
     if let Some(mut user_name_vec) = user_name_field_opt {
         let user_name_field = user_name_vec.remove(0);
         user_name = user_name_field.text;
     }
-
-    println!("{:?}", user_name);
 
     if let Some(mut site_id_vec) = site_id_field_opt {
         let site_id_field = site_id_vec.remove(0);
         site_id = site_id_field.text.parse::<i32>().unwrap();
     }
 
-    println!("{:?}", site_id);
-
     if let Some(mut site_name_vec) = site_name_field_opt {
         let site_name_field = site_name_vec.remove(0);
         site_name = site_name_field.text;
     }
-
-    println!("{:?}", site_name);
 
     if let Some(mut site_details_vec) = site_details_field_opt {
         let site_details_field = site_details_vec.remove(0);
         site_details = site_details_field.text;
     }
 
-    println!("{:?}", site_details);
-
     if let Some(mut site_latitude_vec) = site_latitude_field_opt {
         let site_latitude_field = site_latitude_vec.remove(0);
         site_latitude = BigDecimal::from_str(&site_latitude_field.text).unwrap();
     }
 
-    println!("{:?}", site_latitude);
-
     if let Some(mut site_longitude_vec) = site_longitude_field_opt {
         let site_longitude_field = site_longitude_vec.remove(0);
         site_longitude = BigDecimal::from_str(&site_longitude_field.text).unwrap();
     }
-
-    println!("{:?}", site_longitude);
 
     if let Some(photos_vec) = photos_field_opt {
         if photos_vec.len() < 2 {
@@ -187,8 +173,6 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         }
         photos = photos_vec;
     }
-
-    println!("{:?}", photos);
 
     if user_id == 0 {
         if user_name.len() == 0 {
@@ -263,11 +247,13 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         }
     }
 
+    let now = Utc::now().naive_utc();
+
     let mut submission_id = 0; // TODO
     let inserted_submission: InsertableSubmission = InsertableSubmission {
         user_id: user_id,
         site_id: site_id,
-        submission_date: Utc::now().naive_utc(),
+        submission_date: now,
         status: "TEMP".to_string(),
     };
     let inserted_submission_count = diesel::insert_into(submissions::table)
@@ -300,7 +286,6 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         };
     }
 
-    let now = Utc::now();
     let photos_folder_path = Path::new(&env::var("HOSTED_FILES_FOLDER").unwrap())
         .join(format!("{:0>4}", now.year()))
         .join(format!("{:0>2}", now.month()))
