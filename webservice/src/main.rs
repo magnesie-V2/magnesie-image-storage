@@ -12,21 +12,34 @@ extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
 
+pub mod beans;
 pub mod cors;
 pub mod models;
 pub mod routes;
 pub mod schema;
-pub mod beans;
+
+use std::env;
 
 use rocket_contrib::serve::StaticFiles;
 
 #[database("rocket_app")]
 pub struct DbConn(diesel::MysqlConnection);
 
-fn main() { 
+fn main() {
+    let _test_env_var = &env::var("HOSTED_FILES_FOLDER").unwrap();
     rocket::ignite()
-        .mount("/", routes![routes::home, routes::list_new_submissions, routes::update_submission, routes::create_user, routes::submit])
-        .mount("/files", StaticFiles::from("/hostedFiles"))
+        .mount(
+            "/",
+            routes![
+                routes::home,
+                routes::list_new_submissions,
+                routes::update_submission,
+                routes::submit,
+                routes::list_users,
+                routes::list_sites
+            ],
+        )
+        .mount("/hostedFiles", StaticFiles::from("/hostedFiles"))
         .attach(DbConn::fairing())
         .attach(cors::CorsFairing)
         .launch();

@@ -11,13 +11,13 @@ table! {
 
 table! {
     use diesel::sql_types::*;
-    use diesel_geometry::sql_types::*;
 
     sites (id) {
         id -> Integer,
         name -> Varchar,
-        location -> Point,
         details -> Varchar,
+        latitude -> Decimal,
+        longitude -> Decimal,
     }
 }
 
