@@ -302,9 +302,9 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
 
     let now = Utc::now();
     let photos_folder_path = Path::new(&env::var("HOSTED_FILES_FOLDER").unwrap())
-        .join(now.year().to_string())
-        .join(now.month().to_string())
-        .join(now.day().to_string())
+        .join(format!("{:0>4}", now.year()))
+        .join(format!("{:0>2}", now.month()))
+        .join(format!("{:0>2}", now.day()))
         .join(site_id.to_string());
 
     let folder_creation_res = fs::create_dir_all(&photos_folder_path);
