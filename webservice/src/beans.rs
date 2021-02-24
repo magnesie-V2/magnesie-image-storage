@@ -5,14 +5,10 @@ use rocket::data::FromDataSimple;
 use rocket::http::{ContentType, Status};
 use rocket::{Outcome, Outcome::*};
 
-use crate::models::{Site, User};
-
-// Always use a limit to prevent DoS attacks.
+/// Always use a limit to prevent DoS attacks.
 const LIMIT: u64 = 256;
 
-/*
-Bean used by the GET `/new_submissions` route to retrieve data of the new submissions
-*/
+/// Bean used by the GET `/new_submissions` route to retrieve data of the new submissions
 #[derive(Serialize)]
 pub struct SubmissionBean {
     pub id: i32,
@@ -20,15 +16,15 @@ pub struct SubmissionBean {
     pub submission_date: NaiveDateTime,
 }
 
-/*
-Bean used by the POST `/change_submission_status` route to update the submission
-*/
+
+/// Bean used by the POST `/change_submission_status` route to update the submission
 #[derive(Deserialize)]
 pub struct UpdateSubmissionBean {
     pub id: i32,
     pub status: String,
 }
 
+/// Implementation of the FromDataSimple trait for the UpdateSubmissionBean
 impl FromDataSimple for UpdateSubmissionBean {
     type Error = String;
 
@@ -53,35 +49,3 @@ impl FromDataSimple for UpdateSubmissionBean {
         }
     }
 }
-
-#[derive(Deserialize)]
-pub struct SubmitedDataBean {
-    pub user: User,
-    pub site: Site,
-    pub photos: Vec<SubmitedPhotoBean>,
-}
-
-#[derive(Deserialize)]
-pub struct SubmitedPhotoBean {
-    // #[serde(with = "base64")]
-    // pub base64: Vec<u8>,
-    pub base64: String
-}
-
-// mod base64 {
-//     extern crate base64;
-//     use serde::{de, Deserialize, Deserializer};
-
-//     pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
-//     where
-//         D: Deserializer<'de>,
-//     {
-//         let s = <&str>::deserialize(deserializer)?;
-//         // let content = s.split(',').collect::<Vec<&str>>();
-//         // let mut str: &str = s;
-//         // if content.len() == 2 {
-//         //     str = content[1];
-//         // }
-//         base64::decode(s).map_err(de::Error::custom)
-//     }
-// }

@@ -20,14 +20,13 @@ use crate::models::*;
 use crate::schema::*;
 use crate::DbConn;
 
+/// Home page
 #[get("/")]
 pub fn home() -> &'static str {
     "The API is up and running!"
 }
 
-/*
-Lists the new submissions at their photos
-*/
+/// Lists the new submissions at their photos
 #[get("/new_submissions")]
 pub fn list_new_submissions(conn: DbConn) -> Json<Vec<beans::SubmissionBean>> {
     // Retrieves the "NEW" submissions
@@ -69,6 +68,7 @@ pub fn list_new_submissions(conn: DbConn) -> Json<Vec<beans::SubmissionBean>> {
     )
 }
 
+/// Updates the status of the submission given as JSON to the given status 
 #[post(
     "/change_submission_status",
     format = "application/json",
@@ -87,8 +87,10 @@ pub fn update_submission(conn: DbConn, submission: beans::UpdateSubmissionBean) 
     }
 }
 
+/// Saves the form data to the database and the photos to the filesystem
 #[post("/submit", data = "<data>")]
 pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
+    // Form structure
     let options = MultipartFormDataOptions::with_multipart_form_data_fields(vec![
         MultipartFormDataField::text("user_id"),
         MultipartFormDataField::text("user_name"),
@@ -112,6 +114,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         return Status::BadRequest;
     }
 
+    // the form data
     let mut multipart_form_data = multipart_form_data_opt.unwrap();
 
     let user_id_field_opt = multipart_form_data.texts.remove("user_id");
@@ -132,6 +135,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
     let mut site_longitude: BigDecimal = BigDecimal::from_str("0.0").unwrap();
     let mut photos: Vec<FileField> = Vec::new();
 
+    // Extracts the form values from the form data
     if let Some(mut user_id_vec) = user_id_field_opt {
         let user_id_field = user_id_vec.remove(0);
         user_id = user_id_field.text.parse::<i32>().unwrap();
@@ -167,6 +171,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         site_longitude = BigDecimal::from_str(&site_longitude_field.text).unwrap();
     }
 
+    // If there is less that 2 photos returns a 400 code
     if let Some(photos_vec) = photos_field_opt {
         if photos_vec.len() < 2 {
             return Status::BadRequest;
@@ -174,6 +179,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         photos = photos_vec;
     }
 
+    // Insert the user and retrieve the id
     if user_id == 0 {
         if user_name.len() == 0 {
             println!("User's name is too short.");
@@ -188,6 +194,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
             return Status::InternalServerError;
         }
         if inserted_user_count.unwrap() > 0 {
+            // Retrieves the inserted user id
             let inserted_user_id_option: Result<Option<i32>, Error> = users::table
                 .select(max(users::id))
                 .first::<Option<i32>>(&conn.0);
@@ -208,6 +215,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         }
     }
 
+    // Insert the site and retrieve the id
     if site_id == 0 {
         if site_name.len() == 0 {
             println!("Site's name is too short.");
@@ -227,6 +235,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
             return Status::InternalServerError;
         }
         if inserted_site_count.unwrap() > 0 {
+            // Retrieves the inserted site id
             let inserted_site_id_option: Result<Option<i32>, Error> = sites::table
                 .select(max(sites::id))
                 .first::<Option<i32>>(&conn.0);
@@ -249,7 +258,10 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
 
     let now = Utc::now().naive_utc();
 
-    let mut submission_id = 0; // TODO
+    
+    // Insert the submission and retrieve the id
+    let mut submission_id = 0;
+    // The submission is insterted with a "TEMP" status
     let inserted_submission: InsertableSubmission = InsertableSubmission {
         user_id: user_id,
         site_id: site_id,
@@ -267,6 +279,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         return Status::InternalServerError;
     }
     if inserted_submission_count.unwrap() > 0 {
+        // Retrieves the inserted submission id
         let inserted_submission_id_option: Result<Option<i32>, Error> = submissions::table
             .select(max(submissions::id))
             .first::<Option<i32>>(&conn.0);
@@ -286,12 +299,14 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         };
     }
 
+    // Storing folder path : ${HOSTED_FILES_FOLDER}/<YYYY>/<MM>/<DD>/<submission_id>
     let photos_folder_path = Path::new(&env::var("HOSTED_FILES_FOLDER").unwrap())
         .join(format!("{:0>4}", now.year()))
         .join(format!("{:0>2}", now.month()))
         .join(format!("{:0>2}", now.day()))
         .join(submission_id.to_string());
 
+    // Creates the storing folder
     let folder_creation_res = fs::create_dir_all(&photos_folder_path);
     if (&folder_creation_res).is_err() {
         println!(
@@ -303,7 +318,9 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         return Status::InternalServerError;
     }
 
+    // For each photo
     for (index, photo) in photos.iter().enumerate() {
+        // Save locally as : <photo_number>.jpg
         let new_file_name = format!("{}{}", index, ".jpg");
         let new_file_path = (&photos_folder_path).join(&new_file_name);
         let file_copy_res = fs::copy(&photo.path, &new_file_path);
@@ -315,6 +332,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
             update_submission_status(submission_id, &conn, "ERROR");
             return Status::InternalServerError;
         }
+        // Inserts the photo into the database
         let inserted_photo: InsertablePhoto = InsertablePhoto {
             file_name: new_file_name,
             submission_id: submission_id,
@@ -333,10 +351,12 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         }
     }
 
+    // Updates the submission status to NEW
     update_submission_status(submission_id, &conn, "NEW");
     Status::Ok
 }
 
+/// Updates the status of the given submission to the given status 
 fn update_submission_status(submission_id: i32, conn: &DbConn, status: &str) {
     let _update_submission_to_err_res =
         diesel::update(submissions::table.filter(submissions::id.eq(submission_id)))
@@ -344,6 +364,7 @@ fn update_submission_status(submission_id: i32, conn: &DbConn, status: &str) {
             .execute(&conn.0);
 }
 
+/// Lists the users in the database
 #[get("/users")]
 pub fn list_users(conn: DbConn) -> Result<Json<Vec<User>>, String> {
     use crate::schema::users::dsl::*;
@@ -357,6 +378,7 @@ pub fn list_users(conn: DbConn) -> Result<Json<Vec<User>>, String> {
         .map(Json)
 }
 
+/// Lists the sites in the database
 #[get("/sites")]
 pub fn list_sites(conn: DbConn) -> Result<Json<Vec<Site>>, String> {
     use crate::schema::sites::dsl::*;

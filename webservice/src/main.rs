@@ -22,6 +22,7 @@ use std::env;
 
 use rocket_contrib::serve::StaticFiles;
 
+/// Database connection
 #[database("rocket_app")]
 pub struct DbConn(diesel::MysqlConnection);
 

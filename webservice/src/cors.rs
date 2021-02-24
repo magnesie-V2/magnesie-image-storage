@@ -3,6 +3,7 @@ use rocket::{http::Method, http::Status, Request, Response};
 
 pub struct CorsFairing;
 
+/// Cors fairing
 impl Fairing for CorsFairing {
     fn on_response(&self, request: &Request, response: &mut Response) {
         // Add CORS headers to allow all origins to all outgoing requests
@@ -18,7 +19,7 @@ impl Fairing for CorsFairing {
             "Access-Control-Allow-Headers", 
             "*"
         ));
-        // Respond to all `OPTIONS` requests with a `204` (no content) status
+        // Respond to all `OPTIONS` requests with a `200` (ok) status
         if response.status() == Status::NotFound && request.method() == Method::Options {
             response.set_status(Status::Ok);
         }
