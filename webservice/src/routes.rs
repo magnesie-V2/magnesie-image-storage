@@ -290,7 +290,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
         .join(format!("{:0>4}", now.year()))
         .join(format!("{:0>2}", now.month()))
         .join(format!("{:0>2}", now.day()))
-        .join(site_id.to_string());
+        .join(submission_id.to_string());
 
     let folder_creation_res = fs::create_dir_all(&photos_folder_path);
     if (&folder_creation_res).is_err() {

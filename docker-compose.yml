@@ -15,7 +15,7 @@ services:
     depends_on:
       - database
     ports: 
-      - "80:80"
+      - "7880:80"
     volumes: 
       - hostedFiles:/hostedFiles
     environment:
