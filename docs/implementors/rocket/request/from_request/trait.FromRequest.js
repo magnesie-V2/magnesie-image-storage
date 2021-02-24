@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["webservice"] = [{"text":"impl&lt;'a, 'r&gt; <a class=\"trait\" href=\"https://api.rocket.rs/v0.4/rocket/request/from_request/trait.FromRequest.html\" title=\"trait rocket::request::from_request::FromRequest\">FromRequest</a>&lt;'a, 'r&gt; for <a class=\"struct\" href=\"webservice/struct.DbConn.html\" title=\"struct webservice::DbConn\">DbConn</a>","synthetic":false,"types":["webservice::DbConn"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["main",""]],"mod":[["beans",""],["cors",""],["models",""],["routes",""],["schema",""]],"struct":[["DbConn","The request guard type."],["DbConnPool","The pool type."]]});
