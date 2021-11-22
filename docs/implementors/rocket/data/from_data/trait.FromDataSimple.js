@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["webservice"] = [{"text":"impl <a class=\"trait\" href=\"https://api.rocket.rs/v0.4/rocket/data/from_data/trait.FromDataSimple.html\" title=\"trait rocket::data::from_data::FromDataSimple\">FromDataSimple</a> for <a class=\"struct\" href=\"webservice/beans/struct.UpdateSubmissionBean.html\" title=\"struct webservice::beans::UpdateSubmissionBean\">UpdateSubmissionBean</a>","synthetic":false,"types":["webservice::beans::UpdateSubmissionBean"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

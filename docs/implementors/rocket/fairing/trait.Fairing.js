@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["webservice"] = [{"text":"impl <a class=\"trait\" href=\"https://api.rocket.rs/v0.4/rocket/fairing/trait.Fairing.html\" title=\"trait rocket::fairing::Fairing\">Fairing</a> for <a class=\"struct\" href=\"webservice/cors/struct.CorsFairing.html\" title=\"struct webservice::cors::CorsFairing\">CorsFairing</a>","synthetic":false,"types":["webservice::cors::CorsFairing"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

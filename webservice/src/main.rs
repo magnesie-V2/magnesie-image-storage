@@ -36,8 +36,6 @@ fn main() {
                 routes::list_new_submissions,
                 routes::update_submission,
                 routes::submit,
-                routes::list_users,
-                routes::list_sites
             ],
         )
         .mount("/hostedFiles", StaticFiles::from("/hostedFiles"))

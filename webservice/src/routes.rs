@@ -92,13 +92,6 @@ pub fn update_submission(conn: DbConn, submission: beans::UpdateSubmissionBean) 
 pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
     // Form structure
     let options = MultipartFormDataOptions::with_multipart_form_data_fields(vec![
-        MultipartFormDataField::text("user_id"),
-        MultipartFormDataField::text("user_name"),
-        MultipartFormDataField::text("site_id"),
-        MultipartFormDataField::text("site_name"),
-        MultipartFormDataField::text("site_details"),
-        MultipartFormDataField::text("site_latitude"),
-        MultipartFormDataField::text("site_longitude"),
         MultipartFormDataField::file("photos")
             .repetition(Repetition::infinite())
             .content_type(serde::__private::Some(mime::IMAGE_JPEG)),
@@ -117,143 +110,17 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
     // the form data
     let mut multipart_form_data = multipart_form_data_opt.unwrap();
 
-    let user_id_field_opt = multipart_form_data.texts.remove("user_id");
-    let user_name_field_opt = multipart_form_data.texts.remove("user_name");
-    let site_id_field_opt = multipart_form_data.texts.remove("site_id");
-    let site_name_field_opt = multipart_form_data.texts.remove("site_name");
-    let site_details_field_opt = multipart_form_data.texts.remove("site_details");
-    let site_latitude_field_opt = multipart_form_data.texts.remove("site_latitude");
-    let site_longitude_field_opt = multipart_form_data.texts.remove("site_longitude");
     let photos_field_opt = multipart_form_data.files.remove("photos");
 
-    let mut user_id: i32 = 0;
-    let mut user_name: String = "".to_string();
-    let mut site_id: i32 = 0;
-    let mut site_name: String = "".to_string();
-    let mut site_details: String = "".to_string();
-    let mut site_latitude: BigDecimal = BigDecimal::from_str("0.0").unwrap();
-    let mut site_longitude: BigDecimal = BigDecimal::from_str("0.0").unwrap();
     let mut photos: Vec<FileField> = Vec::new();
 
     // Extracts the form values from the form data
-    if let Some(mut user_id_vec) = user_id_field_opt {
-        let user_id_field = user_id_vec.remove(0);
-        user_id = user_id_field.text.parse::<i32>().unwrap();
-    }
-
-    if let Some(mut user_name_vec) = user_name_field_opt {
-        let user_name_field = user_name_vec.remove(0);
-        user_name = user_name_field.text;
-    }
-
-    if let Some(mut site_id_vec) = site_id_field_opt {
-        let site_id_field = site_id_vec.remove(0);
-        site_id = site_id_field.text.parse::<i32>().unwrap();
-    }
-
-    if let Some(mut site_name_vec) = site_name_field_opt {
-        let site_name_field = site_name_vec.remove(0);
-        site_name = site_name_field.text;
-    }
-
-    if let Some(mut site_details_vec) = site_details_field_opt {
-        let site_details_field = site_details_vec.remove(0);
-        site_details = site_details_field.text;
-    }
-
-    if let Some(mut site_latitude_vec) = site_latitude_field_opt {
-        let site_latitude_field = site_latitude_vec.remove(0);
-        site_latitude = BigDecimal::from_str(&site_latitude_field.text).unwrap();
-    }
-
-    if let Some(mut site_longitude_vec) = site_longitude_field_opt {
-        let site_longitude_field = site_longitude_vec.remove(0);
-        site_longitude = BigDecimal::from_str(&site_longitude_field.text).unwrap();
-    }
-
-    // If there is less that 2 photos returns a 400 code
+    // If there is less than 2 photos returns a 400 code
     if let Some(photos_vec) = photos_field_opt {
         if photos_vec.len() < 2 {
             return Status::BadRequest;
         }
         photos = photos_vec;
-    }
-
-    // Insert the user and retrieve the id
-    if user_id == 0 {
-        if user_name.len() == 0 {
-            println!("User's name is too short.");
-            return Status::BadRequest;
-        }
-        let inserted_user: InsertableUser = InsertableUser { name: user_name };
-        let inserted_user_count = diesel::insert_into(users::table)
-            .values(inserted_user)
-            .execute(&conn.0);
-        if inserted_user_count.is_err() {
-            println!("Error inserting user: {:?}", inserted_user_count.err());
-            return Status::InternalServerError;
-        }
-        if inserted_user_count.unwrap() > 0 {
-            // Retrieves the inserted user id
-            let inserted_user_id_option: Result<Option<i32>, Error> = users::table
-                .select(max(users::id))
-                .first::<Option<i32>>(&conn.0);
-            if inserted_user_id_option.is_err() {
-                println!(
-                    "Error getting inserted user id: {:?}",
-                    inserted_user_id_option.err()
-                );
-                return Status::InternalServerError;
-            }
-            match inserted_user_id_option.unwrap() {
-                None => {
-                    println!("Error getting inserted user id");
-                    return Status::InternalServerError;
-                }
-                Some(inserted_user_id) => user_id = inserted_user_id,
-            };
-        }
-    }
-
-    // Insert the site and retrieve the id
-    if site_id == 0 {
-        if site_name.len() == 0 {
-            println!("Site's name is too short.");
-            return Status::BadRequest;
-        }
-        let inserted_site: InsertableSite = InsertableSite {
-            name: site_name,
-            details: site_details,
-            latitude: site_latitude,
-            longitude: site_longitude,
-        };
-        let inserted_site_count = diesel::insert_into(sites::table)
-            .values(inserted_site)
-            .execute(&conn.0);
-        if inserted_site_count.is_err() {
-            println!("Error inserting site: {:?}", inserted_site_count.err());
-            return Status::InternalServerError;
-        }
-        if inserted_site_count.unwrap() > 0 {
-            // Retrieves the inserted site id
-            let inserted_site_id_option: Result<Option<i32>, Error> = sites::table
-                .select(max(sites::id))
-                .first::<Option<i32>>(&conn.0);
-            if inserted_site_id_option.is_err() {
-                println!(
-                    "Error getting inserted site id: {:?}",
-                    inserted_site_id_option.err()
-                );
-                return Status::InternalServerError;
-            }
-            match inserted_site_id_option.unwrap() {
-                None => {
-                    println!("Error getting inserted site id");
-                    return Status::InternalServerError;
-                }
-                Some(inserted_site_id) => site_id = inserted_site_id,
-            };
-        }
     }
 
     let now = Utc::now().naive_utc();
@@ -263,8 +130,6 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
     let mut submission_id = 0;
     // The submission is insterted with a "TEMP" status
     let inserted_submission: InsertableSubmission = InsertableSubmission {
-        user_id: user_id,
-        site_id: site_id,
         submission_date: now,
         status: "TEMP".to_string(),
     };
@@ -362,32 +227,4 @@ fn update_submission_status(submission_id: i32, conn: &DbConn, status: &str) {
         diesel::update(submissions::table.filter(submissions::id.eq(submission_id)))
             .set(submissions::status.eq(status))
             .execute(&conn.0);
-}
-
-/// Lists the users in the database
-#[get("/users")]
-pub fn list_users(conn: DbConn) -> Result<Json<Vec<User>>, String> {
-    use crate::schema::users::dsl::*;
-
-    users
-        .load(&conn.0)
-        .map_err(|err| -> String {
-            println!("Error querying users: {:?}", err);
-            "Error querying users from the database".into()
-        })
-        .map(Json)
-}
-
-/// Lists the sites in the database
-#[get("/sites")]
-pub fn list_sites(conn: DbConn) -> Result<Json<Vec<Site>>, String> {
-    use crate::schema::sites::dsl::*;
-
-    sites
-        .load(&conn.0)
-        .map_err(|err| -> String {
-            println!("Error querying sites: {:?}", err);
-            "Error querying sites from the database".into()
-        })
-        .map(Json)
 }

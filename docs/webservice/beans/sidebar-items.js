@@ -1,1 +1,0 @@
-initSidebarItems({"constant":[["LIMIT","Always use a limit to prevent DoS attacks."]],"struct":[["SubmissionBean","Bean used by the GET `/new_submissions` route to retrieve data of the new submissions"],["UpdateSubmissionBean","Bean used by the POST `/change_submission_status` route to update the submission"]]});
