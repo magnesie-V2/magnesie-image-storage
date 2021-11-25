@@ -19,7 +19,7 @@ Creates a Rust API service that automatically connects to the database. Hosts th
 - `/`: homepage
 - `/new_submissions`: lists the untreated submissions
 - `/change_submission_status`: changes the status of a given submission
-- `/submit`: handles the form data (submission, photo)
+- `/submit`: handles the form data (submission, photo) and return the new submission id
 - `/hostedFiles`: opens access to the files in the `/hostedFiles` directory
 
 ## API requests
@@ -118,6 +118,7 @@ photos: [File('photo1.jpg'), File('photo2.jpg'), File('photo3.jpg'), ...]
 <tr>
     <td>200</td>
     <td>OK: Updated</td>
+    <pre>{155}</pre>
 </tr>
 <tr>
     <td>400</td>

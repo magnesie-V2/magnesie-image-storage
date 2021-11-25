@@ -89,7 +89,7 @@ pub fn update_submission(conn: DbConn, submission: beans::UpdateSubmissionBean) 
 
 /// Saves the form data to the database and the photos to the filesystem
 #[post("/submit", data = "<data>")]
-pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
+pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Result<Json<i32>,Status> {
     // Form structure
     let options = MultipartFormDataOptions::with_multipart_form_data_fields(vec![
         MultipartFormDataField::file("photos")
@@ -104,7 +104,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
             None => println!("Unknown error"),
             Some(err) => println!("Error in form data: {:?}", err),
         }
-        return Status::BadRequest;
+        return Err(Status::BadRequest);
     }
 
     // the form data
@@ -118,7 +118,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
     // If there is less than 2 photos returns a 400 code
     if let Some(photos_vec) = photos_field_opt {
         if photos_vec.len() < 2 {
-            return Status::BadRequest;
+            return Err(Status::BadRequest);
         }
         photos = photos_vec;
     }
@@ -141,7 +141,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
             "Error inserting submission: {:?}",
             inserted_submission_count.err()
         );
-        return Status::InternalServerError;
+        return Err(Status::InternalServerError);
     }
     if inserted_submission_count.unwrap() > 0 {
         // Retrieves the inserted submission id
@@ -153,12 +153,12 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
                 "Error getting inserted submission id: {:?}",
                 inserted_submission_id_option.err()
             );
-            return Status::InternalServerError;
+            return Err(Status::InternalServerError);
         }
         match inserted_submission_id_option.unwrap() {
             None => {
                 println!("Error getting inserted submission id");
-                return Status::InternalServerError;
+                return Err(Status::InternalServerError);
             }
             Some(inserted_submission_id) => submission_id = inserted_submission_id,
         };
@@ -180,7 +180,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
             folder_creation_res.err()
         );
         update_submission_status(submission_id, &conn, "ERROR");
-        return Status::InternalServerError;
+        return Err(Status::InternalServerError);
     }
 
     // For each photo
@@ -195,7 +195,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
                 &photo.path, &new_file_path, file_copy_res.err()
             );
             update_submission_status(submission_id, &conn, "ERROR");
-            return Status::InternalServerError;
+            return Err(Status::InternalServerError);
         }
         // Inserts the photo into the database
         let inserted_photo: InsertablePhoto = InsertablePhoto {
@@ -212,13 +212,13 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Status {
                 inserted_photo_count.err()
             );
             update_submission_status(submission_id, &conn, "ERROR");
-            return Status::InternalServerError;
+            return Err(Status::InternalServerError);
         }
     }
 
     // Updates the submission status to NEW
     update_submission_status(submission_id, &conn, "NEW");
-    Status::Ok
+    Ok(Json(submission_id))
 }
 
 /// Updates the status of the given submission to the given status 
