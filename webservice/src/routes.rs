@@ -46,7 +46,7 @@ pub fn list_new_submissions(conn: DbConn) -> Json<Vec<beans::SubmissionBean>> {
     // Isolates the id and the submission date of the submissions
     let submissions_bean_data_list = submissions_list
         .into_iter()
-        .map(|submission| (submission.id, submission.submission_date));
+        .map(|submission| (submission.id, submission.name, submission.submission_date));
 
     // Isolates the path of the photos
     let photos_path_list_grouped: Vec<Vec<String>> = photos_list_grouped
@@ -59,10 +59,11 @@ pub fn list_new_submissions(conn: DbConn) -> Json<Vec<beans::SubmissionBean>> {
         submissions_bean_data_list
             .zip(photos_path_list_grouped)
             .into_iter()
-            .map(|((id, submission_date), photos)| beans::SubmissionBean {
-                id: id,
-                photos: photos,
-                submission_date: submission_date,
+            .map(|((id, name, submission_date), photos)| beans::SubmissionBean {
+                id,
+                name,
+                photos,
+                submission_date,
             })
             .collect::<Vec<beans::SubmissionBean>>(),
     )
@@ -92,9 +93,10 @@ pub fn update_submission(conn: DbConn, submission: beans::UpdateSubmissionBean) 
 pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Result<Json<i32>,Status> {
     // Form structure
     let options = MultipartFormDataOptions::with_multipart_form_data_fields(vec![
+        MultipartFormDataField::text("name"),
         MultipartFormDataField::file("photos")
             .repetition(Repetition::infinite())
-            .content_type(serde::__private::Some(mime::IMAGE_JPEG)),
+            .content_type(serde::__private::Some(mime::IMAGE_JPEG))
     ]);
 
     let multipart_form_data_opt = MultipartFormData::parse(content_type, data, options);
@@ -110,7 +112,14 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Result<Js
     // the form data
     let mut multipart_form_data = multipart_form_data_opt.unwrap();
 
+    let name_field_opt = multipart_form_data.texts.remove("name");
     let photos_field_opt = multipart_form_data.files.remove("photos");
+
+    let mut name: String = "".to_string();
+
+    if let Some(mut name_txt) = name_field_opt {
+        name = name_txt.remove(0).text;
+    }
 
     let mut photos: Vec<FileField> = Vec::new();
 
@@ -130,6 +139,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Result<Js
     let mut submission_id = 0;
     // The submission is insterted with a "TEMP" status
     let inserted_submission: InsertableSubmission = InsertableSubmission {
+        name,
         submission_date: now,
         status: "TEMP".to_string(),
     };
@@ -200,7 +210,7 @@ pub fn submit(conn: DbConn, content_type: &ContentType, data: Data) -> Result<Js
         // Inserts the photo into the database
         let inserted_photo: InsertablePhoto = InsertablePhoto {
             file_name: new_file_name,
-            submission_id: submission_id,
+            submission_id,
             path: new_file_path.into_os_string().into_string().unwrap()
         };
         let inserted_photo_count = diesel::insert_into(photos::table)

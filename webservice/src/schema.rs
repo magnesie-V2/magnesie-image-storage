@@ -12,6 +12,7 @@ table! {
     use diesel::sql_types::*;
     submissions (id) {
         id -> Integer,
+        name -> Varchar,
         submission_date -> Timestamp,
         status -> Varchar,
     }

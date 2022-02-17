@@ -12,6 +12,7 @@ const LIMIT: u64 = 256;
 #[derive(Serialize)]
 pub struct SubmissionBean {
     pub id: i32,
+    pub name: String,
     pub photos: Vec<String>,
     pub submission_date: NaiveDateTime,
 }

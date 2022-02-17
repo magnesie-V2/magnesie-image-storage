@@ -26,6 +26,7 @@ pub struct InsertablePhoto {
 #[derive(Serialize, Identifiable, Queryable, Associations)]
 pub struct Submission {
     pub id: i32,
+    pub name: String,
     pub submission_date: NaiveDateTime,
     pub status: String
 }
@@ -34,6 +35,7 @@ pub struct Submission {
 #[derive(Insertable, Associations)]
 #[table_name = "submissions"]
 pub struct InsertableSubmission {
+    pub name: String,
     pub submission_date: NaiveDateTime,
     pub status: String
 }

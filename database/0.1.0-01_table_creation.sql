@@ -2,6 +2,7 @@ USE magnesie_image_storage;
 
 CREATE TABLE IF NOT EXISTS submissions (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
     submission_date TIMESTAMP NOT NULL,
     status VARCHAR(10) NOT NULL
 );
@@ -20,6 +21,7 @@ USE magnesie_result_storage;
 
 CREATE TABLE IF NOT EXISTS results (
     id INT PRIMARY KEY NOT NULL,
+    name VARCHAR(50) NOT NULL,
     model_path VARCHAR(200) NOT NULL,
     texture_path VARCHAR(200) NOT NULL
 );
