@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS results (
     id INT PRIMARY KEY NOT NULL,
     name VARCHAR(50) NOT NULL,
     model_path VARCHAR(200) NOT NULL,
-    texture_path VARCHAR(200) NOT NULL
+    texture_path VARCHAR(200) NOT NULL,
+    total_consumption_joules INT NOT NULL
 );
 
 COMMIT;
